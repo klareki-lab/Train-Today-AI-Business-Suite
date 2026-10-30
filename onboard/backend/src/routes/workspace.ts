@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticate, csrf } from '../middleware/auth.js';
 import { pool, transaction } from '../repositories/db.js';
 import { ApiError } from '../middleware/errors.js';
+import { config } from '../config/index.js';
 export const workspace=Router();
 workspace.use(authenticate,csrf);
 async function admin(id:string){return !!(await pool.query('SELECT 1 FROM workspace_permissions WHERE user_id=$1 AND system_admin=true',[id])).rowCount;}
@@ -29,7 +30,7 @@ workspace.get('/accesses',async(req,res)=>{
  if(manage&&!isAdmin)throw new ApiError(403,'FORBIDDEN');
  const entries=(await pool.query(`SELECT a.id,a.employee_id,a.system_name,a.username,a.login_url,a.status,a.updated_at,e.first_name,e.last_name,e.department
  FROM employee_accesses a JOIN employees e ON e.id=a.employee_id WHERE ($1::boolean OR a.employee_id=$2) ORDER BY e.last_name,a.system_name`,[manage,p.employee_id])).rows;
- res.json({data:{entries,portal:manage?null:{system_name:'Train Today Onboard',username:p.username,login_url:'http://localhost:5173/login',status:'active'},systemAdmin:isAdmin}});
+ res.json({data:{entries,portal:manage?null:{system_name:'Train Today Onboard',username:p.username,login_url:`${config.APP_ORIGIN}/login`,status:'active'},systemAdmin:isAdmin}});
 });
 workspace.patch('/accesses/:id',async(req,res)=>{
  const p=req.principal!;if(!await admin(p.id))throw new ApiError(403,'FORBIDDEN');

@@ -35,7 +35,7 @@ if a.action=='restore':
  (ROOT/'.private/restored').write_text('Databases restored into isolated local volumes.\n');print('Restore complete. Start with: python local-suite.py up')
 elif a.action=='up':
  if not (ROOT/'.private/restored').exists():raise SystemExit('Restore the provided databases first. No application started.')
- dc('up','-d','--build','api','onboarding-dashboard','web','crm','mailpit')
+ dc('up','-d','--build','api','onboarding-dashboard','web','crm','mailpit','gateway')
  print('Local applications started. Workflow activation and external AI keys are separate manual steps; see README.md.')
 elif a.action=='stop':dc('stop')
 else:dc('ps')

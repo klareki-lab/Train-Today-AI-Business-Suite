@@ -3,7 +3,7 @@ import {managementReport,completedAt} from './management.mjs';
 import http from 'node:http';
 import fs from 'node:fs/promises';
 import {randomUUID,randomBytes,timingSafeEqual} from 'node:crypto';
-import {call,unwrap} from './mcp.mjs';
+import {call,unwrap,mcpConfig} from './mcp.mjs';
 import {catalog,modes} from './catalog.mjs';
 import {cases,save,pool,messages} from './storage.mjs';
 import {validateTaskChange,publicCase} from './domain.mjs';
@@ -211,9 +211,10 @@ const server=http.createServer(async(req,res)=>{try{
  }
 
  if(path==='/api/bootstrap'&&req.method==='GET')return json(res,200,{csrf:principal.csrf_token,user:principal.user,graph,catalog,modes,storage:'PostgreSQL · Fälle, Freigaben, Aufgaben und Nachrichten dauerhaft gespeichert.'});
- if(path==='/api/health'&&req.method==='GET'){let connected=false;try{const r=await fetch((process.env.N8N_MCP_URL||'http://localhost:5678/mcp-server/http').replace('/mcp-server/http','/healthz'),{signal:AbortSignal.timeout(2500)});connected=r.ok;}catch{}return json(res,200,{connected,workflows:config});}
+ if(path==='/api/health'&&req.method==='GET')return json(res,200,{connected:false,enabled:process.env.MCP_ENABLED==='1',workflows:config});
  if(path==='/api/cases'&&req.method==='GET')return json(res,200,{cases:[...cases.values()].reverse().map(view)});
  if(path==='/api/cases'&&req.method==='POST'){
+  await mcpConfig();
   if([...cases.values()].some(c=>['running','deciding'].includes(c.status)))fail('Es läuft bereits ein Onboarding. Bitte kurz warten.',409);
 
   const b=await body(req);const employee={};for(const k of ['fullName','personalEmail','companyEmail','department','role','manager','startDate']){if(b[k]!=null&&typeof b[k]!=='string')fail('Ungültiges Feld: '+k);employee[k]=(b[k]||'').slice(0,200);}employee.managerial=b.managerial===true;
@@ -225,6 +226,7 @@ const server=http.createServer(async(req,res)=>{try{
   if(!match[2]&&req.method==='GET')return json(res,200,view(c));
   if(match[2]==='download'&&req.method==='GET'){res.setHeader('Content-Disposition',`attachment; filename="onboarding-${c.id.slice(0,8)}.json"`);return json(res,200,view(c));}
   if(match[2]==='decision'&&req.method==='POST'){
+   await mcpConfig();
    if(c.status!=='pending_approval')fail('Dieser Fall wartet nicht auf eine HR-Entscheidung.',409);
    if([...cases.values()].some(x=>['running','deciding'].includes(x.status)))fail('Es läuft bereits eine Ausführung.',409);
    const b=await body(req);if(!['approve','reject'].includes(b.decision))fail('Ungültige Entscheidung.');
@@ -234,8 +236,6 @@ const server=http.createServer(async(req,res)=>{try{
    c.decision={decision:b.decision,reviewer,comment,draft,decidedAt:new Date().toISOString()};c.status='deciding';await save(c,principal.user.username,'decision-requested',{decision:b.decision});json(res,202,{id:c.id});void execute(c,'decision');return;
   }
  }
- const files={'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/style.css':['style.css','text/css'],'/konzept':['konzept.html','text/html']};
- if(files[path]&&req.method==='GET'){const[f,type]=files[path];res.writeHead(200,{'Content-Type':type+'; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"});res.end(await fs.readFile(new URL('public/'+f,import.meta.url)));return;}
  fail('Nicht gefunden.',404);
  }catch(e){if(!res.headersSent)json(res,e.status||500,{error:e.status?e.message:'Lokaler Dienst konnte die Anfrage nicht verarbeiten.'});else res.end();if(!e.status)console.error(e);}});
 

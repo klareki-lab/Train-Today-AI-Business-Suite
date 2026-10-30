@@ -1,5 +1,18 @@
 import fs from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
+const allowedWorkflows=new Set(['iR52oRyEoMWakIj9','V4fgFJOFdFtqYUjA']);
+export async function mcpConfig() {
+ if(process.env.MCP_ENABLED!=='1')throw Object.assign(new Error('MCP ist deaktiviert.'),{status:503});
+ const config=JSON.parse(await fs.readFile(process.env.N8N_MCP_CONFIG||new URL('../.mcp.json',import.meta.url),'utf8')).mcpServers['n8n-mcp'];
+ const token=config?.headers?.Authorization;
+ if(typeof token!=='string'||!/^Bearer\s+\S{16,}$/.test(token)||/configure|placeholder|your[_ -]?(own|token)|change[_ -]?me|replace|dummy|example|[<>]/i.test(token))throw Object.assign(new Error('MCP-Token nicht konfiguriert.'),{status:503});
+ const url=process.env.N8N_MCP_URL||config.url;
+ if(url!=='http://n8n:5678/mcp-server/http')throw Object.assign(new Error('MCP-Ziel nicht freigegeben.'),{status:503});
+ return {config,url};
+}
+function authorize(method,params){
+ if(method!=='tools/call'||!['execute_workflow','get_workflow_execution'].includes(params?.name)||!allowedWorkflows.has(params?.arguments?.workflowId))throw Object.assign(new Error('MCP-Aufruf nicht freigegeben.'),{status:403});
+}
 export function parseRpcResponse(raw) {
  const text=raw.replace(/^\uFEFF/,'').trim();
  if(text.startsWith('{'))return JSON.parse(text);
@@ -12,8 +25,8 @@ export function parseRpcResponse(raw) {
  throw new Error('n8n MCP: Keine passende JSON-RPC-Antwort empfangen.');
 }
 export async function rpc(method,params={}) {
- const config=JSON.parse(await fs.readFile(process.env.N8N_MCP_CONFIG||new URL('../.mcp.json',import.meta.url),'utf8')).mcpServers['n8n-mcp'];
- const res=await fetch(process.env.N8N_MCP_URL||config.url,{method:'POST',headers:{...config.headers,Accept:'application/json, text/event-stream','Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:AbortSignal.timeout(120000)});
+ const {config,url}=await mcpConfig();authorize(method,params);
+ const res=await fetch(url,{method:'POST',headers:{...config.headers,Accept:'application/json, text/event-stream','Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:AbortSignal.timeout(120000)});
  if(!res.ok)throw new Error(`n8n MCP: ${res.status}`);
  const msg=parseRpcResponse(await res.text());
  if(msg.error)throw new Error(JSON.stringify(msg.error));return msg.result;

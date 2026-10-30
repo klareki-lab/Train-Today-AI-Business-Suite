@@ -2,6 +2,14 @@
 
 ## Gemeinsame Installation
 
+### Lokale Sicherheitsgrenzen (G3.1)
+
+`MCP_ENABLED` und `AI_ENABLED` stehen standardmäßig auf `0`. Bei deaktivierter CRM-KI oder fehlendem Schlüssel antworten KI-Endpunkte mit HTTP 503, bevor eine Provider-Verbindung aufgebaut wird. Die Datenbank- und normalen CRM-Endpunkte bleiben davon unabhängig. Schlüssel gehören ausschließlich in die private lokale Konfiguration, niemals in Browser-Code oder Git. Freigabe von KI benötigt eine gesonderte Entscheidung; der interne Docker-Netzverbund hat keinen allgemeinen Internetzugang und ist kein DNS- oder Hostname-Allowlist-Firewallersatz.
+
+MCP bleibt ohne ausdrückliche Freigabe deaktiviert. Zum Vorbereiten nach Freigabe: in der separaten lokalen n8n-Instanz die importierten IDs `iR52oRyEoMWakIj9` und `V4fgFJOFdFtqYUjA` erneut prüfen, nur diese Workflows und notwendige MCP-Berechtigungen freigeben und ein neues lokales Token erstellen. Token ausschließlich in der privaten, mit 0600 geschützten `mcp.json` hinterlegen; die Platzhalterkonfiguration ist ungültig. Nur die interne Adresse `http://n8n:5678/mcp-server/http` ist erlaubt. Erst nach Prüfung der Workflow-Ziele und Credentials `MCP_ENABLED=1` in der privaten `.env` setzen und den Coordinator neu erstellen. Der Code erlaubt nur die beiden IDs und die benötigten Ausführungs-/Status-Tools. Keine Workflow-Aktivierung durch diese Vorbereitung. Zum Abschalten `MCP_ENABLED=0` setzen und den Coordinator neu erstellen; Workflows gegebenenfalls zusätzlich in n8n deaktivieren. Der Status `connected` wird ohne authentifizierten MCP-Test nicht behauptet.
+
+Der Coordinator stellt keine eigene statische Oberfläche oder Host-Port mehr bereit. Der Portal-Reverse-Proxy erreicht seine authentifizierten API-Routen im internen Netzwerk. Ein lokaler Gateway verbindet ausschließlich feste Dienstziele mit den bestehenden Loopback-Ports und ist als einziger Container zusätzlich an einem ausgehenden Netzwerk angeschlossen. Das interne Netzwerk ersetzt keine unabhängige Firewall oder DNS-Allowlist; insbesondere hat der Gateway selbst einen ausgehenden Pfad. Dies bleibt ein Sicherheitsvorbehalt für eine spätere Freigabe.
+
 `local-suite.py configure` erstellt ignorierte Dateien `.env` und `.private/mcp.json`. Geheimnisse nur dort bzw. in n8n-Credentials hinterlegen. Nach Änderungen an `.env`: `python local-suite.py up`. Nach Änderung an `coordinator/config.json` muss `onboarding-dashboard` neu gebaut werden.
 
 | Variable | Zweck / Dienst | Erforderlich | Neue Zugangsdaten |

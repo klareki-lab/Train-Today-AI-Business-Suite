@@ -64,6 +64,14 @@ Default URLs in the original handover: portal `http://localhost:5173`, CRM `http
 
 Provider API keys, passwords, database dumps and local `.env` are never to be committed. The old archive has been intentionally excluded from this repository. Keep secrets in private local files and local n8n credentials.
 
+## Portfolio Demo
+
+This local demonstration brings together an HR and employee portal, onboarding task coordination and a CRM for customer and project management. It uses React and TypeScript, Node.js, PostgreSQL, Docker Compose, n8n and Mailpit. Role-based views, approval-oriented task plans and CRM dashboards can be explored with local accounts; email is captured locally. AI providers, MCP and n8n workflows remain disabled in the demonstration and are not presented as a live AI execution.
+
+After the separately supplied historical data has been restored into new, isolated suite volumes as described above, start the existing installation with `python3 local-suite.py up`. To start its separate automation service, run `docker compose --env-file .env -f compose.yaml --profile automation up -d n8n`. The original default URLs are Portal `http://localhost:5173`, CRM `http://localhost:3080`, Mailpit `http://localhost:8025` and n8n `http://localhost:5681`; a configured port offset changes these addresses. This owner's local installation uses `http://localhost:35173`, `http://localhost:33080`, `http://localhost:38025` and `http://localhost:35681`, respectively. Credentials and the data archive are stored privately and are not part of the repository.
+
+Sergii's portfolio work covers the local integration, deployment, security remediation and demonstration preparation of this suite. The original component authors and project provenance remain credited below and in [PROVENANCE.md](PROVENANCE.md). A short German narration is available in [PORTFOLIO-DEMO-DE.md](PORTFOLIO-DEMO-DE.md). Review and anonymize any historical data before recording or publishing footage.
+
 ## Guides and evidence
 
 - [Suite configuration, credentials and workflow activation](CONFIGURATION.md)
