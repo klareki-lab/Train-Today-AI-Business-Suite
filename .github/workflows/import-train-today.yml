@@ -1,0 +1,67 @@
+name: Import Train Today Suite source
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-train-today.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.repository == 'klareki-lab/Train-Today-AI-Business-Suite'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Import pinned source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet --filter=blob:none --single-branch --branch feature/train-today-suite-20261030 https://github.com/klareki-lab/wbs-employee-onboarding.git /tmp/train-today-source
+          expected=7f292d0aadb03689733004be5c6ce169846d47c4
+          actual="$(git -C /tmp/train-today-source rev-parse HEAD)"
+          test "$actual" = "$expected" || { echo 'Pinned source SHA mismatch'; exit 1; }
+          root=/tmp/train-today-source/handover/train-today-suite
+          test -f "$root/local-suite.py"
+          rsync -a --exclude='.env' --exclude='.env.*' --exclude='.private/' --exclude='.secrets/' --exclude='node_modules/' --exclude='dist/' --exclude='*.7z' --exclude='*.dump' --exclude='*.backup' --exclude='ZUGAENGE.txt' --exclude='ARCHIV-PASSWORT.txt' --exclude='README.md' "$root/" ./
+          cp "$root/README.md" README-HANDOVER.md
+          cat >> .gitignore <<'EOF'
+          .env
+          .env.*
+          !.env.example
+          .private/
+          .secrets/
+          *.7z
+          *.dump
+          *.backup
+          ZUGAENGE.txt
+          ARCHIV-PASSWORT.txt
+          node_modules/
+          dist/
+          EOF
+          cat > PROVENANCE.md <<'EOF'
+          # Source provenance
+
+          Original repository: [klareki-lab/wbs-employee-onboarding](https://github.com/klareki-lab/wbs-employee-onboarding)
+
+          Pull request: [#7](https://github.com/klareki-lab/wbs-employee-onboarding/pull/7)
+
+          Source branch: `feature/train-today-suite-20261030`
+
+          Pinned commit: `7f292d0aadb03689733004be5c6ce169846d47c4`
+
+          Original directory: `handover/train-today-suite/`
+
+          This repository contains the application code, Compose stack, migrations and workflow exports, but excludes the encrypted database archive and private local credentials. The original handover README is retained as `README-HANDOVER.md`.
+          EOF
+          git add -A
+          if git diff --cached --name-only | grep -E '(^|/)(ZUGAENGE\.txt|ARCHIV-PASSWORT\.txt|train-today-datenbanken\.7z|\.env)$|\.(7z|dump|backup)$'; then
+            echo 'Private material staged; aborting' >&2
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --quiet || git commit -m "Import pinned Train Today Suite source from PR #7"
+          git push
