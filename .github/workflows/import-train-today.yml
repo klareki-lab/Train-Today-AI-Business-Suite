@@ -25,7 +25,7 @@ jobs:
           test "$actual" = "$expected" || { echo 'Pinned source SHA mismatch'; exit 1; }
           root=/tmp/train-today-source/handover/train-today-suite
           test -f "$root/local-suite.py"
-          rsync -a --exclude='.env' --exclude='.env.*' --exclude='.private/' --exclude='.secrets/' --exclude='node_modules/' --exclude='dist/' --exclude='*.7z' --exclude='*.dump' --exclude='*.backup' --exclude='ZUGAENGE.txt' --exclude='ARCHIV-PASSWORT.txt' --exclude='README.md' "$root/" ./
+          rsync -a --exclude='.env' --include='.env.example' --exclude='.env.*' --exclude='.private/' --exclude='.secrets/' --exclude='node_modules/' --exclude='dist/' --exclude='*.7z' --exclude='*.dump' --exclude='*.backup' --exclude='ZUGAENGE.txt' --exclude='ARCHIV-PASSWORT.txt' --exclude='/README.md' "$root/" ./
           cp "$root/README.md" README-HANDOVER.md
           cat >> .gitignore <<'EOF'
           .env
