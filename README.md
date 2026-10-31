@@ -1,6 +1,6 @@
 # Train Today — AI Business Suite
 
-**A collaborative WBS Coding School project led through integration by Sergii Tytov (Klare KI), with application components and extensions contributed by Juri Poljanzew.** Train Today AI Business Suite brings **Train Today Onboard**, **Onboarding Coordinator**, and **CRM / Vertrieb & Service** into one locally deployable business platform. Sergii coordinated the solution architecture, independent codebase integration, Docker/PostgreSQL deployment, security hardening, testing, and release acceptance using Codex and Claude Code.
+**A collaborative WBS Coding School project led through integration by Sergii Tytov — Klare KI (Solution Architect / Integration Lead), with application components and extensions contributed by Juri Poljanzew.** Train Today AI Business Suite brings **Train Today Onboard**, **Onboarding Coordinator**, and **CRM / Vertrieb & Service** into one locally deployable business platform. Sergii coordinated the solution architecture, independent codebase integration, Docker/PostgreSQL deployment, security hardening, testing, and release acceptance using Codex and Claude Code.
 
 > **Status — Locally deployed and independently reviewed (October 2026).** The integrated suite runs locally with three restored PostgreSQL databases, role-based Portal and CRM access, a Coordinator, Mailpit, and 14 imported n8n workflows. Independent audits verified the infrastructure, data, authentication, and key integration paths; the local security remediation passed follow-up review with documented conditions. Workflows and external AI services are intentionally disabled in the portfolio demo. A full AI-driven onboarding run and production deployment are outside the verified scope.
 
@@ -89,7 +89,7 @@ This repository is intended for the WBS cohort to inspect architecture, run inde
 
 ## Credits
 
-- **Sergii Tytov — Klare KI:** solution architecture and integration leadership; consolidation into the independent suite; local Docker and three-database deployment; n8n inventory and configuration; security remediation, independent QA coordination, release management, and portfolio demonstration.
+- **Sergii Tytov — Klare KI, Solution Architect / Integration Lead:** solution architecture and integration leadership; consolidation into the independent suite; local Docker and three-database deployment; n8n inventory and configuration; security remediation, independent QA coordination, release management, and portfolio demonstration.
 - **Juri Poljanzew:** Train Today Onboard, Coordinator and CRM application contributions, extensions, and original suite handover.
 - **Klare KI / WBS project team:** initial Employee Onboarding foundation and collaborative educational development.
 
