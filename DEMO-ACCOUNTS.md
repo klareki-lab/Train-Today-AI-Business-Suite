@@ -2,6 +2,8 @@
 
 The local installation has separate accounts for the Portal, CRM and n8n. It includes a personal demo account for the project owner, historical test accounts and a separate local n8n owner. The Portal supports HR administration, employee, system administrator and leadership access; the CRM supports manager and advisor roles. Permissions depend on the individual account.
 
+The owner's local Portal login is `sergii` (HR administrator and leadership); the separate CRM login is also `sergii` (manager). Their passwords are stored privately and are not included here.
+
 | Service | Local address |
 | --- | --- |
 | Portal | http://localhost:35173 |
