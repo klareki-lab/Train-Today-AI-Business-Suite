@@ -6,7 +6,7 @@ import { pool, transaction } from '../repositories/db.js';
 import { ApiError } from '../middleware/errors.js';
 export const chat=Router();
 chat.use(authenticate,csrf);
-const display="COALESCE(NULLIF(concat_ws(' ',e.first_name,e.last_name),''),u.username)";
+const display="COALESCE(NULLIF(concat_ws(' ',e.first_name,e.last_name),''),upper(left(u.username,1)) || substr(u.username,2))";
 async function member(conversation:string,user:string){
  if(!(await pool.query('SELECT 1 FROM chat_members WHERE conversation_id=$1 AND user_id=$2',[conversation,user])).rowCount)throw new ApiError(404,'CHAT_NOT_FOUND');
 }

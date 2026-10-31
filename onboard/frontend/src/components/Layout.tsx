@@ -4,10 +4,11 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { BarChart3, ArrowRight, BookOpen, Building2, ClipboardList, KeyRound, LayoutDashboard, LogOut, Menu, Plus, ShieldCheck, Users, X } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { Brand, InlineAlert } from './UI';
+import { usernameDisplayName } from '../lib/display-name';
 
 export function Layout({ area }: { area: 'hr' | 'employee' }) {
   const { user, employee, signOut } = useAuth();
-  const displayName = employee ? `${employee.first_name} ${employee.last_name}` : (user?.username || '');
+  const displayName = employee ? `${employee.first_name} ${employee.last_name}` : usernameDisplayName(user?.username || '');
   const initials = employee ? `${employee.first_name[0] || ''}${employee.last_name[0] || ''}` : (user?.username?.[0] || 'W').toUpperCase();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);

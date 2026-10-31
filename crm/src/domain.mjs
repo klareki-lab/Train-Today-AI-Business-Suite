@@ -54,7 +54,7 @@ export async function snapshot(user){return transaction(user,async c=>{
  WHERE p.kind='project' AND p.data->>'merged_into' IS NULL), eligible AS
  (SELECT * FROM projects WHERE origin+make_interval(days=>$1)<=now())
  SELECT count(*)::int AS eligible,count(*) FILTER(WHERE (SELECT a.after_data#>>'{data,stage}' FROM crm.audit a WHERE a.record_id=eligible.id AND a.after_data#>>'{data,stage}' IS NOT NULL AND a.created_at<=eligible.origin+make_interval(days=>$1) ORDER BY a.created_at DESC,a.id DESC LIMIT 1)='won')::int AS won FROM eligible`,[days])).rows[0];cohorts.push({days,...result});}
- return {user,records,people,members,outbox,history,directory,cohorts,server_time:new Date().toISOString(),core_configured:!!process.env.CORE_BASE_URL,core_mode:process.env.CORE_MODE||'disconnected',ai_configured:!!process.env.AI_API_KEY};
+ return {user,records,people,members,outbox,history,directory,cohorts,server_time:new Date().toISOString(),core_configured:!!process.env.CORE_BASE_URL,core_mode:process.env.CORE_MODE||'disconnected',ai_configured:process.env.AI_ENABLED==='1'&&!!process.env.AI_API_KEY};
 });}
 export async function command(user,body){if(!uuid.test(body.request_id||''))fail('Eine stabile Anfrage-ID ist erforderlich.');
  return transaction(user,async c=>{
