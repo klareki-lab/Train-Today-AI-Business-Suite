@@ -1,5 +1,7 @@
 # Train Today — AI Business Suite
 
+> **Für Recruiter und Portfolio-Besucher:** Eine kurze Übersicht meiner technischen Arbeitsproben, meiner Rolle und des belegten Projektstatus steht im **[KI-Portfolio](PORTFOLIO.md)**. Diese Suite ist ein lokal integriertes, unabhängig überprüftes Lern- und Demonstrationsprojekt — kein produktiver Kundeneinsatz.
+
 **A collaborative WBS Coding School project led through integration by Sergii Tytov — Klare KI (Solution Architect / Integration Lead), with application components and extensions contributed by Juri Poljanzew.** Train Today AI Business Suite brings **Train Today Onboard**, **Onboarding Coordinator**, and **CRM / Vertrieb & Service** into one locally deployable business platform. Sergii coordinated the solution architecture, independent codebase integration, Docker/PostgreSQL deployment, security hardening, testing, and release acceptance using Codex and Claude Code.
 
 > **Status — Locally deployed and independently reviewed (October 2026).** The integrated suite runs locally with three restored PostgreSQL databases, role-based Portal and CRM access, a Coordinator, Mailpit, and 14 imported n8n workflows. Independent audits verified the infrastructure, data, authentication, and key integration paths; the local security remediation passed follow-up review with documented conditions. Workflows and external AI services are intentionally disabled in the portfolio demo. A full AI-driven onboarding run and production deployment are outside the verified scope.
